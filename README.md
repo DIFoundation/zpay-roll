@@ -1,6 +1,6 @@
-# ZPay Roll - Next.js
+# ZPay-Roll
 
-Zcash payroll management application built with Next.js and Supabase.
+ZPay-Roll is a Zcash payroll management application built with Next.js and Supabase.
 
 ## Tech Stack
 
