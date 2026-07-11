@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { AuthLayout } from "@/components/AuthLayout";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
@@ -23,7 +22,7 @@ export default function RootLayout({
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body className={inter.className}>
         <Providers>
-          <AuthLayout>{children}</AuthLayout>
+          {children}
         </Providers>
       </body>
     </html>
