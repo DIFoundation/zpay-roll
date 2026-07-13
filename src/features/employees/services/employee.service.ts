@@ -1,1 +1,0 @@
-export { employeeService } from "@/services/employees/employee.service";

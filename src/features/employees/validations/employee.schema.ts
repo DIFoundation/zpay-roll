@@ -45,6 +45,11 @@ export const employeeSchema = z.object({
   currency: z.enum(["ZEC", "USD", "NGN"]),
 
   status: z.enum(["active", "inactive"]).default("active"),
+
+  organization_id: z
+    .string()
+    .trim()
+    .min(1, "Organization ID is required"),
 });
 
 export type EmployeeFormData = z.infer<typeof employeeSchema>;

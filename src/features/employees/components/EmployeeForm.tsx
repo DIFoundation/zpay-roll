@@ -31,7 +31,7 @@ export function EmployeeForm({ employee, onSuccess }: EmployeeFormProps) {
 
   const createEmployee = useCreateEmployee();
   const updateEmployee = useUpdateEmployee();
-  const { organizationId } = useOrganization();
+  // const { organizationId } = useOrganization();
 
   const form = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema),
@@ -46,6 +46,7 @@ export function EmployeeForm({ employee, onSuccess }: EmployeeFormProps) {
       wallet_address: "",
       currency: "ZEC",
       base_salary: 0,
+      organization_id: "",
     },
   });
 
@@ -62,6 +63,7 @@ export function EmployeeForm({ employee, onSuccess }: EmployeeFormProps) {
       wallet_address: employee.wallet_address ?? "",
       currency: employee.currency as "ZEC",
       base_salary: Number(employee.base_salary),
+      organization_id: employee.organization_id ?? "",
     });
   }, [employee, form]);
 
@@ -80,7 +82,7 @@ export function EmployeeForm({ employee, onSuccess }: EmployeeFormProps) {
       } else {
         await createEmployee.mutateAsync({
           ...values,
-          organization_id: organizationId,
+          // organization_id: organizationId,
           wallet_address: values.wallet_address ?? "",
           created_by: user.data.user?.id
         });
@@ -157,6 +159,21 @@ export function EmployeeForm({ employee, onSuccess }: EmployeeFormProps) {
             label="Salary"
             type="number"
           />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <FormInput
+            control={form.control}
+            name="organization_id"
+            label="Organization ID"
+            />
+{/* 
+          <FormInput
+            control={form.control}
+            name="base_salary"
+            label="Salary"
+            type="number"
+          /> */}
         </div>
 
         <Button
