@@ -88,3 +88,72 @@ export function useRefreshWallet() {
     },
   });
 }
+
+// new
+export function useCreateWallet() {
+  return useMutation({
+    mutationFn: async (
+      organizationId: string
+    ) => {
+      const response = await fetch(
+        "/api/wallet/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            organizationId,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Failed to create wallet"
+        );
+      }
+
+      return response.json();
+    },
+  });
+}
+
+export function useWalletAddress(
+  organizationId: string
+) {
+  return useQuery({
+    queryKey: [
+      "wallet-address",
+      organizationId,
+    ],
+    enabled: !!organizationId,
+    queryFn: async () => {
+      const response = await fetch(
+        `/api/wallet/address?organizationId=${organizationId}`
+      );
+
+      return response.json();
+    },
+  });
+}
+
+export function useWalletBalance(
+  organizationId: string
+) {
+  return useQuery({
+    queryKey: [
+      "wallet-balance",
+      organizationId,
+    ],
+    enabled: !!organizationId,
+    queryFn: async () => {
+      const response = await fetch(
+        `/api/wallet/balance?organizationId=${organizationId}`
+      );
+
+      return response.json();
+    },
+  });
+}
