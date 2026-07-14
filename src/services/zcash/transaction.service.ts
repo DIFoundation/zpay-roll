@@ -13,28 +13,54 @@ class TransactionService {
     );
   }
 
-  async quickSend(
-    organizationId: string,
-    address: string,
-    amount: number
-  ) {
-    return executeCLI(
-      this.walletDir(organizationId),
-      "quicksend",
-      address,
-      amount.toString()
-    );
-  }
+  // async quickSend(
+  //   organizationId: string,
+  //   address: string,
+  //   amount: number
+  // ) {
+  //   return executeCLI({
+  //     organizationId,
+  //     command: "quicksend",
+  //     args: [address, amount.toString()],
+  //     parseJson: true,
+  //   });
+  // }
 
   async history(
     organizationId: string
   ) {
-    return executeCLI(
-      this.walletDir(organizationId),
-      "transactions"
-    );
+    return executeCLI({
+      dataDir: this.walletDir(organizationId),
+      command: "transactions"
+    });
   }
+  async quickSend(
+     dataDir: string,
+     address: string,
+     amount: number
+   ) {
+     return executeCLI({
+       dataDir,
+       command: "quicksend",
+       args: [address, amount.toString()],
+     });
+   }
+  
+   async transactions(dataDir: string) {
+     return executeCLI({
+       dataDir,
+       command: "transactions",
+     });
+   }
+  
+   async valueTransfers(dataDir: string) {
+     return executeCLI({
+       dataDir,
+       command: "value_transfers"
+     });
+   }
 }
+
 
 export const transactionService =
   new TransactionService();

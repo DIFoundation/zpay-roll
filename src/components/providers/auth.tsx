@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
+import { googleLogin } from "@/actions/auth/google";
+
 interface AuthContextType {
   user: Session["user"] | null;
   session: Session | null;
@@ -61,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(newSession.user);
         } else {
           toast.error("User session expired or invalid.");
-          router.push("/?error=session_expired");
+          router.push("/login?error=session_expired");
           setSession(null);
           setUser(null);
         }
@@ -89,20 +91,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-          },
-          redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback`,
-        },
-      });
-      
-      if (error) throw error;
+      const url = await googleLogin();
+
+      if (!url) {
+        throw new Error("Google sign-in URL was not returned.");
+      }
+
+      window.location.assign(url);
       toast.success("Redirecting to Google for authentication...");
     } catch (error) {
+      console.error("Sign in error:", error);
       toast.error("Sign in failed. Please try again.");
       throw error;
     }

@@ -5,6 +5,7 @@ import {
   Receipt,
   Settings,
   Wallet,
+  User
 } from "lucide-react";
 
 import { ROUTES } from "./routes";
@@ -19,6 +20,11 @@ export const navigation = [
     title: "Payroll",
     href: ROUTES.PAYROLL,
     icon: CreditCard,
+  },
+  {
+    title: "Employees",
+    href: ROUTES.EMPLOYEES,
+    icon: User,
   },
   {
     title: "Wallets",

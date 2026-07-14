@@ -7,6 +7,7 @@ import {
   NewPayrollBatch,
   UpdatePayrollBatch,
 } from "@/types/supabase";
+import { toast } from "sonner";
 
 const QUERY_KEY = ["payroll"];
 
@@ -71,6 +72,34 @@ export function useDeletePayroll() {
       queryClient.invalidateQueries({
         queryKey: QUERY_KEY,
       });
+    },
+  });
+}
+
+export function useProcessPayroll() {
+  const queryClient =
+    useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) =>
+      payrollService.process(id),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["payroll"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["transactions"],
+      });
+
+      toast.success(
+        "Payroll processed successfully."
+      );
+    },
+
+    onError: (error: Error) => {
+      toast.error(error.message);
     },
   });
 }

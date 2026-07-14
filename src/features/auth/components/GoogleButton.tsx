@@ -4,16 +4,17 @@ import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { googleLogin } from "@/actions/auth/google";
+import { useAuth } from "@/components/providers/auth";
 
 export function GoogleButton() {
   const [loading, setLoading] = useState(false);
 
+  const { signIn } = useAuth();
+
   async function handleGoogleLogin() {
     try {
       setLoading(true);
-
-      await googleLogin();
+      await signIn();
     } finally {
       setLoading(false);
     }

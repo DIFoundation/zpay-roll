@@ -10,8 +10,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Link from "next/link";
+
+import { useAuth } from "../providers/auth";
 
 export function UserMenu() {
+
+  const { signOut, signIn } = useAuth();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center gap-3">
@@ -27,9 +32,13 @@ export function UserMenu() {
       <DropdownMenuContent align="end">
         <DropdownMenuItem>Profile</DropdownMenuItem>
 
-        <DropdownMenuItem>Settings</DropdownMenuItem>
+        <DropdownMenuItem>
+          <Link href="/settings">
+            Settings
+          </Link>
+        </DropdownMenuItem>
 
-        <DropdownMenuItem className="text-red-500">
+        <DropdownMenuItem className="text-red-500" onClick={signOut}>
           Logout
         </DropdownMenuItem>
       </DropdownMenuContent>

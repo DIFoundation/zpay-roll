@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { walletService } from "@/services/wallets/wallet.service";
@@ -28,12 +24,7 @@ export function useConnectWallet() {
       address: string;
       organizationId: string;
       createdBy: string;
-    }) =>
-      walletService.connectWallet(
-        address,
-        organizationId,
-        createdBy
-      ),
+    }) => walletService.connectWallet(address, organizationId, createdBy),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -70,49 +61,20 @@ export function useDisconnectWallet() {
 }
 
 export function useRefreshWallet() {
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: walletService.refreshBalance,
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["wallet"],
+    mutationFn: async (organizationId: string) => {
+      const response = await fetch("/api/wallet/refresh", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          organizationId,
+        }),
       });
 
-      toast.success("Balance updated.");
-    },
-
-    onError: (error: any) => {
-      toast.error(error.message);
-    },
-  });
-}
-
-// new
-export function useCreateWallet() {
-  return useMutation({
-    mutationFn: async (
-      organizationId: string
-    ) => {
-      const response = await fetch(
-        "/api/wallet/create",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-          body: JSON.stringify({
-            organizationId,
-          }),
-        }
-      );
-
       if (!response.ok) {
-        throw new Error(
-          "Failed to create wallet"
-        );
+        throw new Error("Failed to refresh wallet");
       }
 
       return response.json();
@@ -120,18 +82,36 @@ export function useCreateWallet() {
   });
 }
 
-export function useWalletAddress(
-  organizationId: string
-) {
+// new
+export function useCreateWallet() {
+  return useMutation({
+    mutationFn: async (organizationId: string) => {
+      const response = await fetch("/api/wallet/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          organizationId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create wallet");
+      }
+
+      return response.json();
+    },
+  });
+}
+
+export function useWalletAddress(organizationId: string) {
   return useQuery({
-    queryKey: [
-      "wallet-address",
-      organizationId,
-    ],
+    queryKey: ["wallet-address", organizationId],
     enabled: !!organizationId,
     queryFn: async () => {
       const response = await fetch(
-        `/api/wallet/address?organizationId=${organizationId}`
+        `/api/wallet/address?organizationId=${organizationId}`,
       );
 
       return response.json();
@@ -139,18 +119,13 @@ export function useWalletAddress(
   });
 }
 
-export function useWalletBalance(
-  organizationId: string
-) {
+export function useWalletBalance(organizationId: string) {
   return useQuery({
-    queryKey: [
-      "wallet-balance",
-      organizationId,
-    ],
+    queryKey: ["wallet-balance", organizationId],
     enabled: !!organizationId,
     queryFn: async () => {
       const response = await fetch(
-        `/api/wallet/balance?organizationId=${organizationId}`
+        `/api/wallet/balance?organizationId=${organizationId}`,
       );
 
       return response.json();

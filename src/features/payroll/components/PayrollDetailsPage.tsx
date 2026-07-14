@@ -3,7 +3,7 @@
 import { ArrowLeft, Pencil } from "lucide-react";
 import Link from "next/link";
 
-import { PayrollBatch } from "@/types/supabase";
+import { Employee, PayrollBatch } from "@/types/supabase";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import { PayrollStatusBadge } from "./PayrollStatusBadge";
 import { PayrollDialog } from "./PayrollDialog";
 import { PayrollInfoCard } from "./PayrollInfoCard";
 import { PayrollEmployeesTable } from "./PayrollEmployeesTable";
+import { PayrollSummary } from "./PayrollSummary";
 
 interface Props {
   payroll: PayrollBatch;
@@ -20,7 +21,7 @@ interface Props {
 
 export function PayrollDetailsPage({
   payroll,
-}: Props) {
+\}: Props) {
   return (
     <div className="space-y-6">
       <PageHeader
@@ -53,10 +54,22 @@ export function PayrollDetailsPage({
         }
       />
 
+      <PayrollSummary
+        employeeCount={payroll.employee_count}
+        totalAmount={payroll.total_amount}
+      />
+
       <PayrollInfoCard payroll={payroll} />
 
-      <PayrollEmployeesTable
-      />
+      <div className="mt-6">
+        <Button>
+          Run Payroll
+        </Button>
+      </div>
+
+      <div className="mt-8">
+        <PayrollEmployeesTable />
+      </div>
 
       <Card>
         <CardHeader>

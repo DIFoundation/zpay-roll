@@ -17,19 +17,19 @@ export default function AuthCallback() {
         if (error) {
           console.error("Auth callback error:", error);
           toast.error("Authentication failed. Please try again.");
-          router.push("/?error=auth_failed");
+          router.push("/login?error=auth_failed");
           return;
         }
 
         if (data.session) {
-          router.push("/");
+          router.push("/dashboard");
         } else {
           console.error("✗ No session found after OAuth callback");
-          router.push("/?error=no_session");
+          router.push("/login?error=no_session");
         }
       } catch (err) {
         console.error("Auth callback error:", err);
-        router.push("/?error=unknown_error");
+        router.push("/login?error=unknown_error");
       }
     };
 

@@ -83,4 +83,43 @@ export const payrollService = {
 
     return data;
   },
+
+  async getBatch(id: string) {
+  const supabase = await createClient();
+
+  const { data, error } =
+    await supabase
+      .from("payroll_batches")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+  if (error) throw error;
+
+  return data;
+},
+
+async process(id: string) {
+  const response = await fetch(
+    "/api/payroll/process",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        batchId: id,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Failed to process payroll"
+    );
+  }
+
+  return response.json();
+}
 };
