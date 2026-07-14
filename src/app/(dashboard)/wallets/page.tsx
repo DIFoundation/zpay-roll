@@ -1,5 +1,5 @@
-import { EmployeePage } from "@/features/employees";
+import { WalletPage } from "@/features/wallets/components/WalletPage";
 
 export default function Page() {
-  return <EmployeePage />;
+  return <WalletPage />;
 }
