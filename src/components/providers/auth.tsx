@@ -2,10 +2,9 @@
 
 import { Session } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
 import { googleLogin } from "@/actions/auth/google";
 
 interface AuthContextType {
@@ -22,87 +21,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<Session["user"] | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [supabase] = useState(() => createClient());
   const router = useRouter();
 
   useEffect(() => {
-    // Check if there's an existing session
-    const initializeAuth = async () => {
+    let mounted = true;
+
+    (async function init() {
       try {
         const { data: { session: existingSession }, error } = await supabase.auth.getSession();
-        
+        if (!mounted) return;
+
         if (error) {
           console.error("Error getting session:", error);
         } else if (existingSession) {
-          console.log("✓ Existing session found:", existingSession.user.email);
           setSession(existingSession);
           setUser(existingSession.user);
         } else {
-          console.log("No existing session");
           setSession(null);
           setUser(null);
         }
-      } catch (error) {
-        console.error("Auth initialization error:", error);
+      } catch (err) {
+        console.error("Auth initialization error:", err);
         setSession(null);
         setUser(null);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
-    };
+    })();
 
-    initializeAuth();
-
-    // Listen for auth state changes (login/logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
-        
-        if (newSession) {
-          toast.success(`✓ User authenticated as ${newSession.user.email}`);
-          setSession(newSession);
-          setUser(newSession.user);
-        } else {
-          toast.error("User session expired or invalid.");
-          router.push("/login?error=session_expired");
-          setSession(null);
-          setUser(null);
-        }
-        
-        setLoading(false);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (newSession) {
+        toast.success(`Signed in as ${newSession.user.email}`);
+        setSession(newSession);
+        setUser(newSession.user);
+        router.push("/dashboard");
+      } else {
+        setSession(null);
+        setUser(null);
       }
-    );
+      setLoading(false);
+    });
 
     return () => {
+      mounted = false;
       subscription?.unsubscribe();
     };
-  }, []);
+  }, [supabase, router]);
 
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      toast.success("Signed out successfully");
-    } catch (error) {
-      console.error("Sign out error:", error);
-      toast.error("Sign out failed. Please try again.");
-      throw error;
+      toast.success("Signed out");
+    } catch (err) {
+      console.error("Sign out error:", err);
+      toast.error("Sign out failed");
+      throw err;
     }
   };
 
   const signIn = async () => {
     try {
       const url = await googleLogin();
-
-      if (!url) {
-        throw new Error("Google sign-in URL was not returned.");
-      }
-
+      if (!url) throw new Error("No OAuth URL");
+      // navigate browser to OAuth provider
       window.location.assign(url);
-      toast.success("Redirecting to Google for authentication...");
-    } catch (error) {
-      console.error("Sign in error:", error);
-      toast.error("Sign in failed. Please try again.");
-      throw error;
+    } catch (err) {
+      console.error("Sign in error:", err);
+      toast.error("Sign in failed");
+      throw err;
     }
   };
 
@@ -114,9 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 }

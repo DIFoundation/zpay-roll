@@ -8,21 +8,19 @@ interface LoginData {
   password: string;
 }
 
+// Server action: sign in with email/password. Returns a simple shape on failure.
 export async function login(data: LoginData) {
   const supabase = await createClient();
 
-  const { error } =
-    await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
+  const { error } = await supabase.auth.signInWithPassword({
+    email: data.email,
+    password: data.password,
+  });
 
   if (error) {
-    return {
-      success: false,
-      message: error.message,
-    };
+    return { success: false, message: error.message };
   }
 
+  // On success, navigate to dashboard
   redirect("/dashboard");
 }
